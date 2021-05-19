@@ -1,0 +1,46 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-firebase": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-admobpro-firebase": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-flashlight": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-dialogs": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-geolocation": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        }
+    },
+    "dependent_plugins": {
+        "cordova-plugin-extension": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        },
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "com.inceptusp.clima"
+        }
+    }
+}

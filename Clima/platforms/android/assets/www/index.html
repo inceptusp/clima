@@ -1,0 +1,325 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://api.darksky.net https://fonts.googleapis.com https://maps.gstatic.com https://fonts.gstatic.com https://maps.googleapis.com http://api.openweathermap.org https://csi.gstatic.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' data: gap: https://fonts.googleapis.com 'unsafe-inline'; media-src *">
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" href="css/onsenui.min.css" />
+        <link rel="stylesheet" href="css/onsen-css-components.min.css" />
+        <link rel="stylesheet" href="css/index.css" />
+        <title>Clima</title>
+    </head>
+    <body>
+        <ons-splitter>
+            <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+                <ons-page>
+                    <ons-toolbar modifier="material" style="background-color: #ff6a00">
+                        <div class="center" style="color: #ffffff">Menu</div>
+                    </ons-toolbar>
+                    <ons-list>
+                        <ons-list-item onclick="fn.load('home.html')" tappable>
+                            Home
+                        </ons-list-item>
+                        <ons-list-item onclick="fn.load('forecast.html'); getForecastLocation();" tappable>
+                            Previsão do Tempo
+                        </ons-list-item>
+                        <ons-list-item onclick="fn.load('tools.html')" tappable>
+                            Ferramentas
+                        </ons-list-item>
+                        <ons-list-item onclick="fn.load('about.html')" tappable>
+                            Sobre
+                        </ons-list-item>
+                    </ons-list>
+                </ons-page>
+            </ons-splitter-side>
+            <ons-splitter-content id="content" page="home.html"></ons-splitter-content>
+        </ons-splitter>
+
+        <template id="home.html">
+            <ons-page modifier="material">
+
+                <ons-toolbar modifier="material" style="background-color: #ff6a00">
+                    <div class="left">
+                        <ons-toolbar-button onclick="fn.open()">
+                            <ons-icon icon="ion-navicon, material:md-menu" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                    </div>
+                    <div class="center" style="color: #ffffff">Clima</div>
+                </ons-toolbar>
+
+                <ons-progress-bar indeterminate id="home-load"></ons-progress-bar>
+
+                <div style="padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 5%;">
+                    <ons-row vertical-align="bottom">
+                        <ons-col>
+                            <ons-input input-id="zip-code-input" modifier="material" placeholder="Digite sua cidade" float></ons-input>
+                        </ons-col>
+                        <ons-col style="padding-left: 5%;" width="30%">
+                            <ons-button onclick="getWeather()" style="background-color: #ff6a00">Buscar</ons-button>
+                        </ons-col>
+                    </ons-row>
+                </div>
+
+                <ons-carousel swipeable auto-scroll overscrollable id="carousel" direction="vertical">
+                    <ons-carousel-item>
+                        <ons-card>
+                            <div id="error-msg" class="not-displayed" style="text-align: center;">
+                            </div>
+                            <ons-list id="weather-data" class="not-displayed">
+                                <ons-list-header><span id="title"></span></ons-list-header>
+                                <ons-list-item><span id="temperature"></span> °C </ons-list-item>
+                                <ons-list-item>Vento: <span id="wind"></span> m/s</ons-list-item>
+                                <ons-list-item>Umidade: <span id="humidity"></span> %</ons-list-item>
+                                <ons-list-item>Visibilidade: <span id="visibility"></span></ons-list-item>
+                                <ons-list-item>Nascer do Sol: <span id="sunrise"></span></ons-list-item>
+                                <ons-list-item>Pôr do Sol: <span id="sunset"></span></ons-list-item>
+                                <ons-list-header>Mapa</ons-list-header>
+                                <ons-list-item><img id="map-img" style="width: 100%;" /></ons-list-item>
+                            </ons-list>
+                        </ons-card>
+                    </ons-carousel-item>
+                </ons-carousel>
+
+                <ons-fab position="bottom right" ripple style="background-color: #ff6a00" onclick="fn.load('home.html')">
+                    <ons-icon icon="md-refresh" style="color: #ffffff"></ons-icon>
+                </ons-fab>
+
+            </ons-page>
+        </template>
+
+        <template id="forecast.html">
+            <ons-page modifier="material">
+                <ons-toolbar modifier="material" style="background-color: #ff6a00">
+                    <div class="left">
+                        <ons-toolbar-button onclick="fn.open()">
+                            <ons-icon icon="ion-navicon, material:md-menu" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                    </div>
+                    <div class="center" style="color: #ffffff">Previsão do Tempo</div>
+                    <div class="right">
+                        <ons-toolbar-button onclick="prev()">
+                            <ons-icon icon="md-chevron-left" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                        <ons-toolbar-button onclick="next()">
+                            <ons-icon icon="md-chevron-right" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                    </div>
+                </ons-toolbar>
+
+                <ons-progress-bar indeterminate id="forecast-load"></ons-progress-bar>
+
+                <div style="padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 5%;">
+                    <ons-row vertical-align="bottom">
+                        <ons-col>
+                            <ons-input input-id="forecast-input" modifier="material" placeholder="Digite sua cidade" float></ons-input>
+                        </ons-col>
+                        <ons-col style="padding-left: 5%;" width="30%">
+                            <ons-button onclick="getForecast();" style="background-color: #ff6a00">Buscar</ons-button>
+                        </ons-col>
+                    </ons-row>
+                </div>
+
+                <div id="error-forecast-msg" class="not-displayed" style="text-align: center;">
+                </div>
+
+                <ons-carousel swipeable auto-scroll id="carousel">
+                    <ons-carousel-item>
+                        <div class="not-displayed" id="forecast-data1">
+                            <ons-card>
+                                <ons-list>
+                                    <ons-list-header><span id="f1-title"></span></ons-list-header>
+                                    <ons-list-item>
+                                        <div class="left">
+                                            <img id="f1-icon" class="list-item__thumbnail" src="images/weather-conditions/default.png">
+                                        </div>
+                                        <div class="center">
+                                            <span id="f1-resume" class="list-item__title"></span><span id="f1-summary" class="list-item__subtitle"></span>
+                                        </div>
+                                    </ons-list-item>
+                                    <ons-list-item>Máxima: <span id="f1-temperature-high"></span> °C </ons-list-item>
+                                    <ons-list-item>Mínima: <span id="f1-temperature-low"></span> °C </ons-list-item>
+                                    <ons-list-item>Vento: <span id="f1-wind"></span> K/h</ons-list-item>
+                                    <ons-list-item>Umidade: <span id="f1-humidity"></span> %</ons-list-item>
+                                    <ons-list-item>Nascer do Sol: <span id="f1-sunrise"></span></ons-list-item>
+                                    <ons-list-item>Pôr do Sol: <span id="f1-sunset"></span></ons-list-item>
+                                </ons-list>
+                            </ons-card>
+                        </div>
+                    </ons-carousel-item>
+                    <ons-carousel-item>
+                        <div class="not-displayed" id="forecast-data2">
+                            <ons-card>
+                                <ons-list>
+                                    <ons-list-header><span id="f2-title"></span></ons-list-header>
+                                    <ons-list-item>
+                                        <div class="left">
+                                            <img id="f2-icon" class="list-item__thumbnail" src="images/weather-conditions/default.png">
+                                        </div>
+                                        <div class="center">
+                                            <span id="f2-resume" class="list-item__title"></span><span id="f2-summary" class="list-item__subtitle"></span>
+                                        </div>
+                                    </ons-list-item>
+                                    <ons-list-item>Máxima: <span id="f2-temperature-high"></span> °C </ons-list-item>
+                                    <ons-list-item>Mínima: <span id="f2-temperature-low"></span> °C </ons-list-item>
+                                    <ons-list-item>Vento: <span id="f2-wind"></span> K/h</ons-list-item>
+                                    <ons-list-item>Umidade: <span id="f2-humidity"></span> %</ons-list-item>
+                                    <ons-list-item>Nascer do Sol: <span id="f2-sunrise"></span></ons-list-item>
+                                    <ons-list-item>Pôr do Sol: <span id="f2-sunset"></span></ons-list-item>
+                                </ons-list>
+                            </ons-card>
+                        </div>
+                    </ons-carousel-item>
+                    <ons-carousel-item>
+                        <div class="not-displayed" id="forecast-data3">
+                            <ons-card>
+                                <ons-list>
+                                    <ons-list-header><span id="f3-title"></span></ons-list-header>
+                                    <ons-list-item>
+                                        <div class="left">
+                                            <img id="f3-icon" class="list-item__thumbnail" src="images/weather-conditions/default.png">
+                                        </div>
+                                        <div class="center">
+                                            <span id="f3-resume" class="list-item__title"></span><span id="f3-summary" class="list-item__subtitle"></span>
+                                        </div>
+                                    </ons-list-item>
+                                    <ons-list-item>Máxima: <span id="f3-temperature-high"></span> °C </ons-list-item>
+                                    <ons-list-item>Mínima: <span id="f3-temperature-low"></span> °C </ons-list-item>
+                                    <ons-list-item>Vento: <span id="f3-wind"></span> K/h</ons-list-item>
+                                    <ons-list-item>Umidade: <span id="f3-humidity"></span> %</ons-list-item>
+                                    <ons-list-item>Nascer do Sol: <span id="f3-sunrise"></span></ons-list-item>
+                                    <ons-list-item>Pôr do Sol: <span id="f3-sunset"></span></ons-list-item>
+                                </ons-list>
+                            </ons-card>
+                        </div>
+                    </ons-carousel-item>
+                    <ons-carousel-item>
+                        <div class="not-displayed" id="forecast-data4">
+                            <ons-card>
+                                <ons-list>
+                                    <ons-list-header><span id="f4-title"></span></ons-list-header>
+                                    <ons-list-item>
+                                        <div class="left">
+                                            <img id="f4-icon" class="list-item__thumbnail" src="images/weather-conditions/default.png">
+                                        </div>
+                                        <div class="center">
+                                            <span id="f4-resume" class="list-item__title"></span><span id="f4-summary" class="list-item__subtitle"></span>
+                                        </div>
+                                    </ons-list-item>
+                                    <ons-list-item>Máxima: <span id="f4-temperature-high"></span> °C </ons-list-item>
+                                    <ons-list-item>Mínima: <span id="f4-temperature-low"></span> °C </ons-list-item>
+                                    <ons-list-item>Vento: <span id="f4-wind"></span> K/h</ons-list-item>
+                                    <ons-list-item>Umidade: <span id="f4-humidity"></span> %</ons-list-item>
+                                    <ons-list-item>Nascer do Sol: <span id="f4-sunrise"></span></ons-list-item>
+                                    <ons-list-item>Pôr do Sol: <span id="f4-sunset"></span></ons-list-item>
+                                </ons-list>
+                            </ons-card>
+                        </div>
+                    </ons-carousel-item>
+                    <ons-carousel-item>
+                        <div class="not-displayed" id="forecast-data5">
+                            <ons-card>
+                                <ons-list>
+                                    <ons-list-header><span id="f5-title"></span></ons-list-header>
+                                    <ons-list-item>
+                                        <div class="left">
+                                            <img id="f5-icon" class="list-item__thumbnail" src="images/weather-conditions/default.png">
+                                        </div>
+                                        <div class="center">
+                                            <span id="f5-resume" class="list-item__title"></span><span id="f5-summary" class="list-item__subtitle"></span>
+                                        </div>
+                                    </ons-list-item>
+                                    <ons-list-item>Máxima: <span id="f5-temperature-high"></span> °C </ons-list-item>
+                                    <ons-list-item>Mínima: <span id="f5-temperature-low"></span> °C </ons-list-item>
+                                    <ons-list-item>Vento: <span id="f5-wind"></span> K/h</ons-list-item>
+                                    <ons-list-item>Umidade: <span id="f5-humidity"></span> %</ons-list-item>
+                                    <ons-list-item>Nascer do Sol: <span id="f5-sunrise"></span></ons-list-item>
+                                    <ons-list-item>Pôr do Sol: <span id="f5-sunset"></span></ons-list-item>
+                                </ons-list>
+                            </ons-card>
+                        </div>
+                    </ons-carousel-item>
+                </ons-carousel>
+
+                <ons-fab position="bottom right" ripple style="background-color: #ff6a00" onclick="fn.load('forecast.html'); getForecastLocation();">
+                    <ons-icon icon="md-refresh" style="color: #ffffff"></ons-icon>
+                </ons-fab>
+
+            </ons-page>
+        </template>
+
+        <template id="tools.html">
+            <ons-page modifier="material">
+                <ons-toolbar modifier="material" style="background-color: #ff6a00">
+                    <div class="left">
+                        <ons-toolbar-button onclick="fn.open()">
+                            <ons-icon icon="ion-navicon, material:md-menu" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                    </div>
+                    <div class="center" style="color: #ffffff">Ferramentas</div>
+                </ons-toolbar>
+
+                <ons-list-item>
+                    <ons-list-item>
+                        <div class="center">
+                            Lanterna
+                        </div>
+                        <div class="right">
+                            <ons-switch onchange="FlashLight()" style="color: #ff6a00"></ons-switch>
+                        </div>
+                    </ons-list-item>
+                </ons-list-item>
+
+            </ons-page>
+        </template>
+
+        <template id="about.html">
+            <ons-page modifier="material">
+                <ons-toolbar modifier="material" style="background-color: #ff6a00">
+                    <div class="left">
+                        <ons-toolbar-button onclick="fn.open()">
+                            <ons-icon icon="ion-navicon, material:md-menu" style="color: #ffffff"></ons-icon>
+                        </ons-toolbar-button>
+                    </div>
+                    <div class="center" style="color: #ffffff">Sobre</div>
+                </ons-toolbar>
+
+                <div style="text-align: center; padding-top: 5%; padding-left: 5%; padding-right: 5%; padding-bottom: 5%;">
+                    <h1><a href="https://inceptusp.github.io/">inceptusp</a> &copy; 2018</h1><br />
+                    <img src="images/google.png" style="width: 50%;" /><br />
+                    Mapas fornecidos por Google, LLC.<br />
+                    <br />
+                    <img src="images/openWeatherMap.png" style="width: 20%;" />
+                    <img src="images/darksky.png" style="width: 40%;" /><br />
+                    Dados sobre clima da página inicial forrnecidos por <b>OpenWeatherMap</b>. Dados sobre previsão do tempo
+                    fornecidos por <a href="https://darksky.net/poweredby/"><b>Dark Sky</b></a>.<br />
+                    <br />
+                    <img src="images/jquery.png" style="width: 20%;" />
+                    <img src="images/onsen-ui.png" style="width: 20%;" />
+                    <img src="images/cordova.png" style="width: 20%;" /><br />
+                    Criado com tecnologia open-source da <b>The jQuery Foundation</b>, <b>Monaca x Onsen UI Team</b> e
+                    <b>Apache Foundation</b>.<br />
+                    <br />
+                    <img src="images/weather-conditions/rain.png" style="width: 20%;" /><br />
+                    Icones de clima por
+                    <a href="http://www.freepik.com" title="Freepik">Freepik</a> de
+                    <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> e licenciado em
+                    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>.
+                </div>
+
+            </ons-page>
+        </template>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="scripts/platformOverrides.js"></script>
+        <script type="text/javascript" src="scripts/index.js"></script>
+        <script type="text/javascript" src="scripts/index.onsen.js"></script>
+        <script type="text/javascript" src="scripts/flashlight.js"></script>
+        <script type="text/javascript" src="scripts/weather.js"></script>
+        <script type="text/javascript" src="scripts/map.js"></script>
+        <script type="text/javascript" src="scripts/admob.js"></script>
+        <script type="text/javascript" src="scripts/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="scripts/onsenui.min.js"></script>
+        <script type="text/javascript" src="scripts/Flashlight-plugin.js"></script>
+    </body>
+</html>
